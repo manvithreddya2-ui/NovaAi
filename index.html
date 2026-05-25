@@ -1,78 +1,72 @@
-const chatBox = document.getElementById("chat-box");
-const input = document.getElementById("user-input");
-const sendBtn = document.getElementById("send-btn");
+<!DOCTYPE html>
+<html lang="en">
 
-let messages = [];
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-sendBtn.addEventListener("click", sendMessage);
+  <title>TeenChat</title>
 
-input.addEventListener("keypress", function(e) {
-  if (e.key === "Enter") {
-    sendMessage();
-  }
-});
+  <link rel="stylesheet" href="style.css">
+</head>
 
-async function sendMessage() {
+<body>
 
-  const text = input.value.trim();
+<div class="container">
 
-  if (!text) return;
+  <aside class="sidebar">
 
-  addMessage(text, "user");
+    <h2>TeenChat</h2>
 
-  messages.push({
-    role: "user",
-    content: text
-  });
+    <button id="new-chat-btn">
+      + New Chat
+    </button>
 
-  input.value = "";
+    <div id="chat-history"></div>
 
-  const thinking = addMessage("TeenChat is thinking...", "ai");
+  </aside>
 
-  try {
+  <div class="app">
 
-    const response = await fetch("http://localhost:3000/chat", {
+    <header>
 
-      method: "POST",
+      <div class="logo-section">
 
-      headers: {
-        "Content-Type": "application/json"
-      },
+        <img
+          src="https://cdn-icons-png.flaticon.com/512/4712/4712027.png"
+          class="avatar"
+        >
 
-      body: JSON.stringify({
-        messages
-      })
-    });
+        <div>
+          <h1>TeenChat AI</h1>
+          <p>smart ai assistant</p>
+        </div>
 
-    const data = await response.json();
+      </div>
 
-    thinking.remove();
+    </header>
 
-    addMessage(data.reply, "ai");
+    <main id="chat-box"></main>
 
-    messages.push({
-      role: "assistant",
-      content: data.reply
-    });
+    <div class="input-area">
 
-  } catch (error) {
+      <input
+        type="text"
+        id="user-input"
+        placeholder="Message TeenChat..."
+      >
 
-    thinking.innerText = "Could not connect to TeenChat AI.";
-  }
-}
+      <button id="send-btn">
+        Send
+      </button>
 
-function addMessage(text, sender) {
+    </div>
 
-  const msg = document.createElement("div");
+  </div>
 
-  msg.classList.add("message");
-  msg.classList.add(sender);
+</div>
 
-  msg.innerText = text;
+<script src="script.js"></script>
 
-  chatBox.appendChild(msg);
-
-  chatBox.scrollTop = chatBox.scrollHeight;
-
-  return msg;
-}
+</body>
+</html>
