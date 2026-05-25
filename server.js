@@ -8,14 +8,14 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
-/* SERVE FILES */
+/* SERVE STATIC FILES */
 
-app.use(express.static(__dirname));
+app.use(express.static(path.join(__dirname)));
 
 /* OPENAI */
 
 const client = new OpenAI({
-  apiKey: "PUT_API_KEY_HERE"
+  apiKey: "PUT_YOUR_API_KEY_HERE"
 });
 
 /* HOME PAGE */
@@ -44,7 +44,7 @@ app.post("/chat", async (req, res) => {
           role: "system",
 
           content:
-            "You are TeenChat, a smart friendly AI."
+            "You are TeenChat, a smart friendly AI assistant."
         },
 
         ...req.body.messages
@@ -53,8 +53,7 @@ app.post("/chat", async (req, res) => {
 
     res.json({
       reply:
-        completion.choices[0]
-        .message.content
+        completion.choices[0].message.content
     });
 
   } catch (err) {
@@ -62,16 +61,17 @@ app.post("/chat", async (req, res) => {
     console.log(err);
 
     res.json({
-      reply: "AI error."
+      reply:
+        "Error connecting to TeenChat AI."
     });
   }
 });
 
-/* START */
+/* START SERVER */
 
 app.listen(3000, () => {
 
   console.log(
-    "TeenChat running on port 3000"
+    "TeenChat AI server running on port 3000"
   );
 });
