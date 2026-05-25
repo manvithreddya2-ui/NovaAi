@@ -1,67 +1,64 @@
 const chatBox = document.getElementById("chat-box");
 const input = document.getElementById("user-input");
 const sendBtn = document.getElementById("send-btn");
-const typing = document.getElementById("typing");
-const themeBtn = document.getElementById("theme-btn");
-const voiceBtn = document.getElementById("voice-btn");
 
-let memory = [];
+let messages = [];
 
 sendBtn.addEventListener("click", sendMessage);
 
-input.addEventListener("keypress", (e) => {
+input.addEventListener("keypress", function(e) {
   if (e.key === "Enter") {
     sendMessage();
   }
 });
 
-themeBtn.addEventListener("click", () => {
-
-  document.body.classList.toggle("light-mode");
-
-  if (document.body.classList.contains("light-mode")) {
-    themeBtn.innerText = "☀️";
-  } else {
-    themeBtn.innerText = "🌙";
-  }
-});
-
-voiceBtn.addEventListener("click", () => {
-
-  const speech = new webkitSpeechRecognition();
-
-  speech.lang = "en-US";
-
-  speech.onresult = function(event) {
-    input.value = event.results[0][0].transcript;
-  };
-
-  speech.start();
-});
-
-function sendMessage() {
+async function sendMessage() {
 
   const text = input.value.trim();
 
-  if (text === "") return;
+  if (!text) return;
 
   addMessage(text, "user");
 
-  memory.push(text);
+  messages.push({
+    role: "user",
+    content: text
+  });
 
   input.value = "";
 
-  typing.classList.remove("hidden");
+  const thinking = addMessage("TeenChat is thinking...", "ai");
 
-  setTimeout(() => {
+  try {
 
-    const reply = getAIResponse(text);
+    const response = await fetch("http://localhost:3000/chat", {
 
-    typing.classList.add("hidden");
+      method: "POST",
 
-    addMessage(reply, "ai");
+      headers: {
+        "Content-Type": "application/json"
+      },
 
-  }, 1000);
+      body: JSON.stringify({
+        messages
+      })
+    });
+
+    const data = await response.json();
+
+    thinking.remove();
+
+    addMessage(data.reply, "ai");
+
+    messages.push({
+      role: "assistant",
+      content: data.reply
+    });
+
+  } catch (error) {
+
+    thinking.innerText = "Could not connect to TeenChat AI.";
+  }
 }
 
 function addMessage(text, sender) {
@@ -76,49 +73,6 @@ function addMessage(text, sender) {
   chatBox.appendChild(msg);
 
   chatBox.scrollTop = chatBox.scrollHeight;
-}
 
-function getAIResponse(message) {
-
-  message = message.toLowerCase();
-
-  if (message.includes("hello") || message.includes("hey")) {
-    return "yooo 👋";
-  }
-
-  if (message.includes("how are you")) {
-    return "pretty good ngl 😎";
-  }
-
-  if (message.includes("school")) {
-    return "school homework is actually wild 😭";
-  }
-
-  if (message.includes("music")) {
-    return "music hits different late at night";
-  }
-
-  if (message.includes("game")) {
-    return "gaming all night sounds elite";
-  }
-
-  if (message.includes("sad")) {
-    return "dang 😭 hope things get better soon";
-  }
-
-  if (message.includes("bye")) {
-    return "later 😎";
-  }
-
-  const replies = [
-    "nah that's crazy 😭",
-    "fr?",
-    "W opinion honestly",
-    "real 😭",
-    "ok but explain",
-    "that's interesting",
-    "tell me more"
-  ];
-
-  return replies[Math.floor(Math.random() * replies.length)];
+  return msg;
 }
