@@ -1,24 +1,18 @@
 const express = require("express");
 const cors = require("cors");
 const OpenAI = require("openai");
-const path = require("path");
 
 const app = express();
 
 app.use(cors());
 app.use(express.json());
 
-/* SERVE WEBSITE FILES */
-
-app.use(express.static(__dirname));
-
-/* OPENAI */
+/* THIS SERVES YOUR FILES */
+app.use(express.static("."));
 
 const client = new OpenAI({
   apiKey: "PASTE_YOUR_OPENAI_API_KEY_HERE"
 });
-
-/* AI CHAT ROUTE */
 
 app.post("/chat", async (req, res) => {
 
@@ -26,7 +20,8 @@ app.post("/chat", async (req, res) => {
 
     const messages = req.body.messages;
 
-    const completion = await client.chat.completions.create({
+    const completion =
+      await client.chat.completions.create({
 
       model: "gpt-4.1-mini",
 
@@ -40,14 +35,9 @@ app.post("/chat", async (req, res) => {
           content: `
 You are TeenChat.
 
-You are a smart, friendly AI assistant for teens.
-
-Talk naturally like a real person.
-Be conversational and helpful.
-Do NOT give random replies.
-Keep responses clear and human-like.
-Use casual language sometimes but not too much.
-Answer questions intelligently.
+You are a smart friendly AI assistant.
+Talk naturally.
+Be helpful and conversational.
 `
         },
 
@@ -55,37 +45,21 @@ Answer questions intelligently.
       ]
     });
 
-    const reply =
-      completion.choices[0].message.content;
-
     res.json({
-      reply
+      reply:
+        completion.choices[0].message.content
     });
 
-  } catch (error) {
+  } catch (err) {
 
-    console.log(error);
+    console.log(err);
 
-    res.status(500).json({
-      reply: "Something went wrong connecting to TeenChat AI."
+    res.json({
+      reply: "AI error."
     });
   }
 });
 
-/* WEBSITE */
-
-app.get("/", (req, res) => {
-
-  res.sendFile(
-    path.join(__dirname, "index.html")
-  );
-});
-
-/* START SERVER */
-
 app.listen(3000, () => {
-
-  console.log(
-    "TeenChat running on port 3000"
-  );
+  console.log("TeenChat running");
 });
