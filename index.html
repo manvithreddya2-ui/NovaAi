@@ -1,10 +1,57 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 
-<body style="background:black;color:white;">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>TeenChat</title>
 
-<h1>TeenChat Works</h1>
+  <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+
+<div class="container">
+
+  <div class="sidebar">
+
+    <h2>TeenChat</h2>
+
+    <button id="new-chat-btn">
+      + New Chat
+    </button>
+
+    <div id="chat-history"></div>
+
+  </div>
+
+  <div class="app">
+
+    <header>
+      <h1>TeenChat AI</h1>
+    </header>
+
+    <div id="chat-box"></div>
+
+    <div class="input-area">
+
+      <input
+        type="text"
+        id="user-input"
+        placeholder="Message TeenChat..."
+      >
+
+      <button id="send-btn">
+        Send
+      </button>
+
+    </div>
+
+  </div>
+
+</div>
+
+<script src="script.js"></script>
 
 </body>
-
 </html>
