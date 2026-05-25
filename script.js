@@ -1,13 +1,42 @@
 const chatBox = document.getElementById("chat-box");
 const input = document.getElementById("user-input");
 const sendBtn = document.getElementById("send-btn");
+const typing = document.getElementById("typing");
+const themeBtn = document.getElementById("theme-btn");
+const voiceBtn = document.getElementById("voice-btn");
+
+let memory = [];
 
 sendBtn.addEventListener("click", sendMessage);
 
-input.addEventListener("keypress", function(e) {
+input.addEventListener("keypress", (e) => {
   if (e.key === "Enter") {
     sendMessage();
   }
+});
+
+themeBtn.addEventListener("click", () => {
+
+  document.body.classList.toggle("light-mode");
+
+  if (document.body.classList.contains("light-mode")) {
+    themeBtn.innerText = "☀️";
+  } else {
+    themeBtn.innerText = "🌙";
+  }
+});
+
+voiceBtn.addEventListener("click", () => {
+
+  const speech = new webkitSpeechRecognition();
+
+  speech.lang = "en-US";
+
+  speech.onresult = function(event) {
+    input.value = event.results[0][0].transcript;
+  };
+
+  speech.start();
 });
 
 function sendMessage() {
@@ -18,15 +47,21 @@ function sendMessage() {
 
   addMessage(text, "user");
 
+  memory.push(text);
+
   input.value = "";
+
+  typing.classList.remove("hidden");
 
   setTimeout(() => {
 
     const reply = getAIResponse(text);
 
+    typing.classList.add("hidden");
+
     addMessage(reply, "ai");
 
-  }, 700);
+  }, 1000);
 }
 
 function addMessage(text, sender) {
@@ -34,7 +69,6 @@ function addMessage(text, sender) {
   const msg = document.createElement("div");
 
   msg.classList.add("message");
-
   msg.classList.add(sender);
 
   msg.innerText = text;
@@ -48,78 +82,43 @@ function getAIResponse(message) {
 
   message = message.toLowerCase();
 
-  const replies = {
-
-    hello: [
-      "yo 👋",
-      "hey what's up",
-      "heyyyy",
-      "yooo 😎"
-    ],
-
-    how: [
-      "pretty good ngl",
-      "doing awesome today 😄",
-      "kinda tired but vibing",
-      "all good over here"
-    ],
-
-    school: [
-      "school be stressful sometimes 😭",
-      "what class though?",
-      "homework is actually wild",
-      "did you finish your assignments?"
-    ],
-
-    game: [
-      "what games you play?",
-      "gaming all night is elite",
-      "W game choice honestly",
-      "that sounds fun"
-    ],
-
-    bye: [
-      "cya 👋",
-      "later 😎",
-      "bye bye",
-      "talk again soon"
-    ]
-  };
-
-  function randomReply(array) {
-    return array[Math.floor(Math.random() * array.length)];
-  }
-
   if (message.includes("hello") || message.includes("hey")) {
-    return randomReply(replies.hello);
+    return "yooo 👋";
   }
 
   if (message.includes("how are you")) {
-    return randomReply(replies.how);
+    return "pretty good ngl 😎";
   }
 
   if (message.includes("school")) {
-    return randomReply(replies.school);
+    return "school homework is actually wild 😭";
+  }
+
+  if (message.includes("music")) {
+    return "music hits different late at night";
   }
 
   if (message.includes("game")) {
-    return randomReply(replies.game);
+    return "gaming all night sounds elite";
+  }
+
+  if (message.includes("sad")) {
+    return "dang 😭 hope things get better soon";
   }
 
   if (message.includes("bye")) {
-    return randomReply(replies.bye);
+    return "later 😎";
   }
 
-  const randomResponses = [
-    "that's actually crazy 😭",
-    "lowkey interesting",
+  const replies = [
+    "nah that's crazy 😭",
     "fr?",
-    "tell me more",
-    "nah that's wild",
     "W opinion honestly",
     "real 😭",
-    "ok but explain"
+    "ok but explain",
+    "that's interesting",
+    "tell me more"
   ];
 
-  return randomReply(randomResponses);
+  return replies[Math.floor(Math.random() * replies.length)];
 }
