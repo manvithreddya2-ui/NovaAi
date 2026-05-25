@@ -1,8 +1,12 @@
 const chatBox = document.getElementById("chat-box");
 const input = document.getElementById("user-input");
 const sendBtn = document.getElementById("send-btn");
+const newChatBtn = document.getElementById("new-chat-btn");
+const chatHistory = document.getElementById("chat-history");
 
 let messages = [];
+
+loadChats();
 
 sendBtn.addEventListener("click", sendMessage);
 
@@ -10,6 +14,15 @@ input.addEventListener("keypress", function(e) {
   if (e.key === "Enter") {
     sendMessage();
   }
+});
+
+newChatBtn.addEventListener("click", () => {
+
+  messages = [];
+
+  chatBox.innerHTML = "";
+
+  saveChats();
 });
 
 async function sendMessage() {
@@ -55,6 +68,8 @@ async function sendMessage() {
       content: data.reply
     });
 
+    saveChats();
+
   } catch (error) {
 
     thinking.innerText = "Could not connect to TeenChat AI.";
@@ -75,4 +90,67 @@ function addMessage(text, sender) {
   chatBox.scrollTop = chatBox.scrollHeight;
 
   return msg;
+}
+
+function saveChats() {
+
+  localStorage.setItem(
+    "teenchat_messages",
+    JSON.stringify(messages)
+  );
+
+  renderHistory();
+}
+
+function loadChats() {
+
+  const saved = localStorage.getItem("teenchat_messages");
+
+  if (saved) {
+
+    messages = JSON.parse(saved);
+
+    messages.forEach(msg => {
+      addMessage(
+        msg.content,
+        msg.role === "user" ? "user" : "ai"
+      );
+    });
+  }
+
+  renderHistory();
+}
+
+function renderHistory() {
+
+  chatHistory.innerHTML = "";
+
+  const item = document.createElement("div");
+
+  item.classList.add("chat-item");
+
+  item.innerText = "Saved Chat";
+
+  const del = document.createElement("button");
+
+  del.innerText = "×";
+
+  del.classList.add("delete-btn");
+
+  del.onclick = () => {
+
+    localStorage.removeItem("teenchat_messages");
+
+    messages = [];
+
+    chatBox.innerHTML = "";
+
+    renderHistory();
+  };
+
+  item.appendChild(del);
+
+  if (messages.length > 0) {
+    chatHistory.appendChild(item);
+  }
 }
