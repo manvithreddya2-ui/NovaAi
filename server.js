@@ -1,98 +1,77 @@
-const chatBox =
-  document.getElementById("chat-box");
+const express = require("express");
+const cors = require("cors");
+const OpenAI = require("openai");
+const path = require("path");
 
-const input =
-  document.getElementById("user-input");
+const app = express();
 
-const sendBtn =
-  document.getElementById("send-btn");
+app.use(cors());
+app.use(express.json());
 
-sendBtn.addEventListener(
-  "click",
-  sendMessage
-);
+/* SERVE FILES */
 
-input.addEventListener(
-  "keypress",
-  function(e) {
+app.use(express.static(__dirname));
 
-    if (e.key === "Enter") {
-      sendMessage();
-    }
-  }
-);
+/* OPENAI */
 
-let messages = [];
+const client = new OpenAI({
+  apiKey: "PUT_API_KEY_HERE"
+});
 
-async function sendMessage() {
+/* HOME PAGE */
 
-  const text = input.value.trim();
+app.get("/", (req, res) => {
 
-  if (!text) return;
+  res.sendFile(
+    path.join(__dirname, "index.html")
+  );
+});
 
-  addMessage(text, "user");
+/* CHAT */
 
-  messages.push({
-    role: "user",
-    content: text
-  });
-
-  input.value = "";
+app.post("/chat", async (req, res) => {
 
   try {
 
-    const response =
-      await fetch("/chat", {
+    const completion =
+      await client.chat.completions.create({
 
-      method: "POST",
+      model: "gpt-4.1-mini",
 
-      headers: {
-        "Content-Type":
-          "application/json"
-      },
+      messages: [
 
-      body: JSON.stringify({
-        messages
-      })
+        {
+          role: "system",
+
+          content:
+            "You are TeenChat, a smart friendly AI."
+        },
+
+        ...req.body.messages
+      ]
     });
 
-    const data =
-      await response.json();
-
-    addMessage(
-      data.reply,
-      "ai"
-    );
-
-    messages.push({
-      role: "assistant",
-      content: data.reply
+    res.json({
+      reply:
+        completion.choices[0]
+        .message.content
     });
 
   } catch (err) {
 
-    addMessage(
-      "Could not connect to AI.",
-      "ai"
-    );
+    console.log(err);
+
+    res.json({
+      reply: "AI error."
+    });
   }
-}
+});
 
-function addMessage(text, sender) {
+/* START */
 
-  const msg =
-    document.createElement("div");
+app.listen(3000, () => {
 
-  msg.classList.add(
-    "message"
+  console.log(
+    "TeenChat running on port 3000"
   );
-
-  msg.classList.add(sender);
-
-  msg.innerText = text;
-
-  chatBox.appendChild(msg);
-
-  chatBox.scrollTop =
-    chatBox.scrollHeight;
-}
+});
