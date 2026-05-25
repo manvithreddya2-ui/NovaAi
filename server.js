@@ -1,83 +1,98 @@
-const express = require("express");
-const cors = require("cors");
-const OpenAI = require("openai");
+const chatBox =
+  document.getElementById("chat-box");
 
-const app = express();
+const input =
+  document.getElementById("user-input");
 
-/* MIDDLEWARE */
+const sendBtn =
+  document.getElementById("send-btn");
 
-app.use(cors());
-app.use(express.json());
+sendBtn.addEventListener(
+  "click",
+  sendMessage
+);
 
-/* SERVE WEBSITE FILES */
+input.addEventListener(
+  "keypress",
+  function(e) {
 
-app.use(express.static("."));
+    if (e.key === "Enter") {
+      sendMessage();
+    }
+  }
+);
 
-/* OPENAI */
+let messages = [];
 
-const client = new OpenAI({
-  apiKey: "PASTE_YOUR_OPENAI_API_KEY_HERE"
-});
+async function sendMessage() {
 
-/* CHAT API */
+  const text = input.value.trim();
 
-app.post("/chat", async (req, res) => {
+  if (!text) return;
+
+  addMessage(text, "user");
+
+  messages.push({
+    role: "user",
+    content: text
+  });
+
+  input.value = "";
 
   try {
 
-    const messages = req.body.messages;
+    const response =
+      await fetch("/chat", {
 
-    const completion =
-      await client.chat.completions.create({
+      method: "POST",
 
-      model: "gpt-4.1-mini",
+      headers: {
+        "Content-Type":
+          "application/json"
+      },
 
-      temperature: 0.8,
-
-      messages: [
-
-        {
-          role: "system",
-
-          content: `
-You are TeenChat.
-
-You are a smart, friendly AI assistant for teens.
-
-Talk naturally like a real person.
-Be conversational and helpful.
-Do NOT give random replies.
-Keep responses clear and human-like.
-Use casual language sometimes.
-`
-        },
-
-        ...messages
-      ]
+      body: JSON.stringify({
+        messages
+      })
     });
 
-    const reply =
-      completion.choices[0].message.content;
+    const data =
+      await response.json();
 
-    res.json({
-      reply
+    addMessage(
+      data.reply,
+      "ai"
+    );
+
+    messages.push({
+      role: "assistant",
+      content: data.reply
     });
 
-  } catch (error) {
+  } catch (err) {
 
-    console.log(error);
-
-    res.status(500).json({
-      reply: "Something went wrong connecting to TeenChat AI."
-    });
+    addMessage(
+      "Could not connect to AI.",
+      "ai"
+    );
   }
-});
+}
 
-/* START SERVER */
+function addMessage(text, sender) {
 
-app.listen(8080, () => {
+  const msg =
+    document.createElement("div");
 
-  console.log(
-    "TeenChat running on port 8080"
+  msg.classList.add(
+    "message"
   );
-});
+
+  msg.classList.add(sender);
+
+  msg.innerText = text;
+
+  chatBox.appendChild(msg);
+
+  chatBox.scrollTop =
+    chatBox.scrollHeight;
+}
