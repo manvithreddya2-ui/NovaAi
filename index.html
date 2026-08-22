@@ -2,56 +2,94 @@
 <html lang="en">
 
 <head>
+
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>TeenChat</title>
+
+  <meta
+    name="viewport"
+    content="width=device-width, initial-scale=1.0"
+  >
+
+  <title>NovaAI</title>
+
+  <link
+    rel="icon"
+    type="image/png"
+    href="favicon.png"
+  >
 
   <link rel="stylesheet" href="style.css">
+
 </head>
 
 <body>
 
-<div class="container">
+  <!-- SIDEBAR -->
 
   <div class="sidebar">
 
-    <h2>TeenChat</h2>
+    <h2 class="sidebar-logo">
 
-    <button id="new-chat-btn">
-      + New Chat
-    </button>
+      NovaAI
 
-    <div id="chat-history"></div>
+    </h2>
+
+    <div class="recent">
+
+      <button id="new-chat-btn">
+
+  + New Chat
+
+</button>
+      <h3>Recents</h3>
+
+      <div id="recent-chats"></div>
+
+    </div>
 
   </div>
 
-  <div class="app">
+  <!-- MAIN CHAT -->
 
-    <header>
-      <h1>TeenChat AI</h1>
-    </header>
+  <div class="main-chat">
 
-    <div id="chat-box"></div>
+   <div id="chat-box">
+
+  <div id="welcome-text">
+
+    Ask anything...
+
+  </div>
+
+</div>
+
+    <!-- INPUT AREA -->
 
     <div class="input-area">
 
+      <button id="add-btn">
+        +
+      </button>
+
       <input
-        type="text"
         id="user-input"
-        placeholder="Message TeenChat..."
+        placeholder="Message NovaAI..."
       >
 
+      <button id="mic-btn">
+        🎤
+      </button>
+
       <button id="send-btn">
-        Send
+        ➤
       </button>
 
     </div>
 
   </div>
 
-</div>
-
-<script src="script.js"></script>
+  <script src="script.js"></script>
 
 </body>
+
 </html>
